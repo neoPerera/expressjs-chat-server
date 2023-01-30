@@ -161,6 +161,9 @@ io.on(
                     io.to(getOnlineUserDetails.sockId).emit('notification', { MsgFrom: mesg.User1, Sendername: UserDetails.UserName });
                     console.log('notification sent ' + getOnlineUserDetails.sockId);
 
+                    //ERP NOTIFICATION
+                    io.to(getOnlineUserDetails.sockId).emit('erpnotification', { MsgFrom: mesg.User1, Msg: mesg });
+
 
                 }
 

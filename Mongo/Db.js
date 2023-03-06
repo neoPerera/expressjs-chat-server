@@ -1,6 +1,6 @@
 const mongo = require('mongoose');
-
-const KEY = "mongodb+srv://neo:neo@123@clusterchat-ao2dq.gcp.mongodb.net/test?retryWrites=true&w=majority";
+require("dotenv").config();
+const KEY = process.env.DB_KEY;
 
 const DB = async() =>
 {

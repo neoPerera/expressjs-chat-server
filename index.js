@@ -3,6 +3,7 @@ var app = express();
 var server = require('http').Server(app);
 var socketIo = require('socket.io');
 const router = require('./serverRouter.js');
+require("dotenv").config();
 const cors = require('cors');
 const {
     AddUser,
@@ -26,7 +27,7 @@ const PostModel = require('./Mongo/Models/Posts');
 //OPEN AI CONFIGURATIONS
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({
-  apiKey: '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',
+  apiKey: process.env.OPENAI_API_KEY  ,
 });
 
 const openai = new OpenAIApi(configuration);

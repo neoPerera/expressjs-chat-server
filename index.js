@@ -22,11 +22,25 @@ const db = require('./Mongo/Db');
 const MessageModel = require('./Mongo/Models/Message');
 const PostModel = require('./Mongo/Models/Posts');
 
+
+//OPEN AI CONFIGURATIONS
+const { Configuration, OpenAIApi } = require("openai");
+const configuration = new Configuration({
+  apiKey: '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',
+});
+
+const openai = new OpenAIApi(configuration);
+
 //connecting with
 db();
 
 const PORT = process.env.PORT || 5000;
-var io = socketIo(server);
+var io = socketIo(server,{
+    cors: {
+      origin: "http://localhost",
+      methods: ["GET", "POST"]
+    }
+  });
 server.listen(PORT, () => console.log(`Server started at port ${PORT}`));
 
 
@@ -34,10 +48,27 @@ app.use(router);
 app.use(cors());
 
 
+const fun1 = async (req) =>  {
+        return await openai.createImage({
+            prompt: req,
+            n: 1,
+            size: "1024x1024",
+          }) ;
 
+
+        
+      //console.log(response.data.data[0].url);
+    //   return  order.data.data[0].url;
+  }
 io.on(
     'connection', (socket) => {
         console.log('got a connection');
+        
+                
+ 
+          //image_url = .data.data[0].url;
+      
+
         //got a connection to set online
         socket.on('setOnline', (props) => {
             console.log('someone is online !');
@@ -53,7 +84,7 @@ io.on(
 
             PostModel.find().sort({ DATE: -1 })
                 .then(items => {
-                    console.log(items);
+                    //console.log(items);
                     io.to('online').emit('initialsendingPostToUsers', items);
                 })
                 .catch(err => console.log(err));
@@ -192,16 +223,26 @@ io.on(
 
                     dbSendPost.USER = finduser.UserName;
                     dbSendPost.POST = mesg.Text;
-
-                    let postmodel = new PostModel(dbSendPost);
-                    postmodel.save()
+                    var reply = fun1(mesg.Text)
+                    .then((order) => {
+                        console.log(order.data.data[0].url)
+                        dbSendPost.IMAGE = order.data.data[0].url;
+                        let postmodel = new PostModel(dbSendPost);
+                        postmodel.save()
                         .then(
                             item => {
                                 io.to('online').emit('sendingPostToUsers', item);
 
                             }
                         );
-                    console.log('message updated to database');
+                        console.log('message updated to database');
+                    });
+
+               
+
+
+                    
+                    
 
                 }
 
@@ -307,6 +348,25 @@ io.on(
 
                 }
             );
+        
+                //key sending
+        socket.on( 'sayhi',
+                    (mesg, callBack) => {
+                        console.log('someone sent hi');
+                        const UserDetails = GetUser(socket.id);
+                        if (UserDetails.error) {
+                            callBack();
+        
+                        }
+                        else {
+                            console.log(mesg); 
+                        }
+        
+        
+        
+        
+                    }
+                );
 
     }
 );

@@ -9,6 +9,9 @@ const Post = new mongo.Schema(
         POST:{
             type: String
         },
+        IMAGE:{
+            type: String
+        },
         DATE:{
             type: Date,
             default: Date.now
